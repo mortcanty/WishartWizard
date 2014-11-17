@@ -95,7 +95,7 @@ function imagematch, fid1, fid2, dims2, map_info, pts=pts
   ENVI_DOIT, 'ENVI_REGISTER_DOIT', b_fid=fid1, w_fid=fid2, $
     w_dims=dims2, $
     pts=pts, r_fid=r_fid, $
-    method=4, $
+    method=1, $
     x0 = x0, y0 = y0, $
     xsize = xsize, ysize = ysize, $
     /in_memory

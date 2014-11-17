@@ -21,14 +21,13 @@ END
 
 pro reset_sens, status
   widget_control, status.ingest2ID, sensitive = 0 
-  widget_control, status.saveID, sensitive = 0
+  widget_control, status.saveviewID, sensitive = 0
   widget_control, status.save1ID, sensitive = 0
   widget_control, status.save2ID, sensitive = 0
   widget_control, status.coregisterID, sensitive = 0
-  widget_control, status.estenl1ID, sensitive = 0
-  widget_control, status.estenl2ID, sensitive = 0
-  widget_control, status.view1ID, sensitive = 0
-  widget_control, status.view2ID, sensitive = 0
+  widget_control, status.estenlID, sensitive = 0
+  widget_control, status.viewspan1ID, sensitive = 0
+  widget_control, status.viewspan2ID, sensitive = 0
   widget_control, status.viewenl1ID, sensitive = 0
   widget_control, status.viewenl2ID, sensitive = 0
   widget_control, status.toggleID, sensitive = 0
@@ -46,6 +45,7 @@ function checkforsarscape
   ENDIF
   osb = SARscapeBatch()
   rg_looks=3L
+  workdir = 'none'
   return, 1
 end
 
@@ -113,7 +113,7 @@ end
 
 ; File menu handlers SARscape
 
-pro Onworkdir, event
+pro Onsetwork, event
   common osb, osb,workdir,dem_file,rg_looks
   widget_control, event.top, get_Uvalue=status, /no_copy  
   COMPILE_OPT IDL2  
@@ -131,14 +131,15 @@ pro Onworkdir, event
     widget_control, status.statetextID,set_value=workdir
     ok = SARscape_set_working_in_actual_default(workdir)
     widget_control, status.slcID,sensitive=1
-    widget_control, status.clearID,sensitive=1
+    widget_control, status.clearworkID,sensitive=1
     cd, workdir
   endif  
   widget_control,event.top,set_Uvalue=status,/no_copy
 end
 
-pro Onclear, event
+pro Onclearwork, event
   common osb, osb,workdir,dem_file,rg_looks 
+  widget_control, event.top, get_Uvalue=status, /no_copy  
   COMPILE_OPT IDL2  
 ; Standard error handling.
   Catch, theError
@@ -152,9 +153,25 @@ pro Onclear, event
   files = file_search()
   if n_elements(files) gt 1 then foreach file, files do file_delete, file 
   print, workdir+' was cleared'
+   widget_control, status.statetextID,set_value='Cleared: '+workdir
   widget_control,event.top,set_Uvalue=status,/no_copy
 end
 
+pro Onshowwork, event
+  common osb, osb,workdir,dem_file,rg_looks 
+  widget_control, event.top, get_Uvalue=status, /no_copy
+  COMPILE_OPT IDL2  
+; Standard error handling.
+  Catch, theError
+  IF theError NE 0 THEN BEGIN
+    Catch, /CANCEL
+    void = Error_Message()
+    widget_control,event.top,set_Uvalue=status,/no_copy
+    RETURN
+  ENDIF
+  widget_control, status.statetextID,set_value=workdir
+  widget_control,event.top,set_Uvalue=status,/no_copy
+end
 
 pro ONradarsat2, event
   common osb, osb,workdir,dem_file,rg_looks
@@ -437,8 +454,8 @@ pro ONingest1, event
 ;   reset menu sensitivities
      reset_sens, status
      widget_control, status.ingest2ID, sensitive = 1
-     widget_control, status.view1ID, sensitive = 1
-     widget_control, status.saveID, sensitive = 1
+     widget_control, status.viewspan1ID, sensitive = 1
+     widget_control, status.saveviewID, sensitive = 1
      widget_control, status.save1ID, sensitive = 1
      widget_control, status.load2ID, sensitive = 1
    end else begin
@@ -450,7 +467,7 @@ pro ONingest1, event
      return
    endelse                   
    widget_control,event.top,set_Uvalue=status,/no_copy 
-   onView1, event   
+   onViewspan1, event   
 end
 
 pro ONingest2, event
@@ -503,16 +520,14 @@ pro ONingest2, event
      envi_file_mng,/remove,id=fid1
      envi_file_mng,/remove,id=fid2
      envi_file_mng,/remove,id=fid2a 
-     widget_control, status.view2ID, sensitive = 1
+     widget_control, status.viewspan2ID, sensitive = 1
      widget_control, status.toggleID, sensitive = 1
      widget_control, status.save2ID, sensitive = 1
-     widget_control, status.estenl1ID, sensitive = 1
-     widget_control, status.estenl2ID, sensitive = 1
+     widget_control, status.estenlID, sensitive = 1
      widget_control, status.coregisterID, sensitive= 1
-     widget_control, status.estenl2ID, sensitive = 1
      widget_control, status.changemapID, sensitive = 1
      widget_control,event.top,set_Uvalue=status,/no_copy 
-     onView2, event
+     onViewspan2, event
      return
    end else begin
      widget_control,status.statetextID,set_value='Image ingest failed' 
@@ -549,12 +564,12 @@ pro ONload1, event
   status.dims1 = ptr_new([-1,0,status.cols1-1,0,status.rows1-1])
   print, 'input file '+fname
   widget_control, status.ingest2ID, sensitive = 1
-  widget_control, status.view1ID, sensitive = 1
-  widget_control, status.saveID, sensitive = 1
+  widget_control, status.viewspan1ID, sensitive = 1
+  widget_control, status.saveviewID, sensitive = 1
   widget_control, status.save1ID, sensitive = 1
   widget_control, status.load2ID, sensitive = 1
   widget_control,event.top,set_Uvalue=status,/no_copy 
-  onView1, event
+  onViewspan1, event
 end  
   
 pro ONload2, event
@@ -592,16 +607,14 @@ pro ONload2, event
   if count gt 0 then image[idx]=0.0  
   status.image2 = ptr_new(image)
   print, 'input file '+fname
-  widget_control, status.view2ID, sensitive = 1
+  widget_control, status.viewspan2ID, sensitive = 1
   widget_control, status.toggleID, sensitive = 1
   widget_control, status.save2ID, sensitive = 1
-  widget_control, status.estenl1ID, sensitive = 1
-  widget_control, status.estenl2ID, sensitive = 1
+  widget_control, status.estenlID, sensitive = 1
   widget_control, status.coregisterID, sensitive= 1
-  widget_control, status.estenl2ID, sensitive = 1
   widget_control, status.changemapID, sensitive = 1
   widget_control,event.top,set_Uvalue=status,/no_copy 
-  onView2, event
+  onViewspan2, event
 end   
 
 pro ONsave1, event
@@ -670,7 +683,7 @@ pro ONsave2, event
   widget_control,event.top,set_Uvalue=status,/no_copy
 end
 
-pro ONsave, event
+pro ONsaveview, event
   COMPILE_OPT IDL2
   widget_control,event.top,get_Uvalue=status,/no_copy
   case status.current_view of
@@ -782,7 +795,7 @@ end
   
 ; View menu handlers  
 
-pro ONview1, event
+pro ONviewspan1, event
   COMPILE_OPT IDL2
   widget_control,event.top,get_Uvalue=status,/no_copy
   
@@ -797,13 +810,13 @@ pro ONview1, event
   endelse
   tvscl, alog(span+0.001)
   widget_control,status.statetextID,set_value='Log span of Image1'
-  widget_control, status.saveID, sensitive = 1
+  widget_control, status.saveviewID, sensitive = 1
   status.current_view = 1
   
   widget_control,event.top,set_Uvalue=status,/no_copy
 end
 
-pro ONview2, event
+pro ONviewspan2, event
   COMPILE_OPT IDL2
   widget_control,event.top,get_Uvalue=status,/no_copy
   
@@ -818,7 +831,7 @@ pro ONview2, event
   endelse
   tvscl, alog(img+0.001)
   widget_control,status.statetextID,set_value='Log span of Image2'
-  widget_control, status.saveID, sensitive = 1
+  widget_control, status.saveviewID, sensitive = 1
   status.current_view = 2
   
   widget_control,event.top,set_Uvalue=status,/no_copy
@@ -833,7 +846,7 @@ pro ONviewenl1, event
   img = (*status.enlim1)[*,*,0]
   tvscl, img
   widget_control,status.statetextID,set_value='ENL of Image1'
-  widget_control, status.saveID, sensitive = 1
+  widget_control, status.saveviewID, sensitive = 1
   status.current_view = 3
   
   widget_control,event.top,set_Uvalue=status,/no_copy
@@ -848,7 +861,7 @@ pro ONviewenl2, event
   img = (*status.enlim2)[*,*,0]
   tvscl, img
   widget_control,status.statetextID,set_value='ENL of Image2'
-  widget_control, status.saveID, sensitive = 1
+  widget_control, status.saveviewID, sensitive = 1
   status.current_view = 4
   
   widget_control,event.top,set_Uvalue=status,/no_copy
@@ -863,7 +876,7 @@ pro ONviewstat, event
   img = (*status.Z)[*,*,0]
   tvscl, img>0.0
   widget_control,status.statetextID,set_value='Change statistic'
-  widget_control, status.saveID, sensitive = 1
+  widget_control, status.saveviewID, sensitive = 1
   status.current_view = 5
   
   widget_control,event.top,set_Uvalue=status,/no_copy
@@ -878,7 +891,7 @@ pro ONviewprob, event
   img = (*status.CP)[*,*,0]
   tvscl, img>0.0
   widget_control,status.statetextID,set_value='Change statistic'
-  widget_control, status.saveID, sensitive = 1
+  widget_control, status.saveviewID, sensitive = 1
   status.current_view = 6
   
   widget_control,event.top,set_Uvalue=status,/no_copy
@@ -904,7 +917,7 @@ pro ONviewchange, event
   endif
   tvscl, reform(img,status.cols1,status.rows1,3), true=3
   widget_control,status.statetextID,set_value='Change map'
-  widget_control, status.saveID, sensitive = 1
+  widget_control, status.saveviewID, sensitive = 1
   status.current_view = 7
   
   widget_control,event.top,set_Uvalue=status,/no_copy
@@ -921,6 +934,14 @@ pro ONcoregister, event
   envi_enter_data, alog((*status.image1)[*,*,0]+0.001), map_info=*status.map_info, r_fid=fid1
   envi_enter_data, alog((*status.image2)[*,*,0]+0.001), r_fid=fid2
   ENVI_DOIT, 'ENVI_AUTO_TIE_POINTS_DOIT', base_fid=fid1, warp_fid=fid2, out_tie_points_array=pts
+  if not plausibility(pts,pts) then begin
+    widget_control,status.statetextID,set_value='Insufficient control points, match failed'
+    print, 'Image co-register failed'
+    envi_file_mng,/remove,id=fid1
+    envi_file_mng,/remove,id=fid2 
+    widget_control,event.top,set_Uvalue=status,/no_copy
+    return
+  endif
   envi_file_mng,/remove,id=fid1
   envi_file_mng,/remove,id=fid2 
 ; setup for matching 
@@ -952,7 +973,8 @@ pro ONestenl1, event
     default = 1, uvalue='list', /auto)
   result = auto_wid_mng(base)
   if (result.accept eq 0) then begin
-    wsize=7
+    widget_control,event.top,set_Uvalue=status,/no_copy
+    return
   end else case result.list of
        0: wsize = 3
        1: wsize = 7
@@ -983,6 +1005,7 @@ pro ONestenl1, event
     widget_control,status.statetextID,set_value='ENL calculation failed'
   endelse
   widget_control,event.top,set_Uvalue=status,/no_copy
+  ONviewenl1, event
 end
 
 pro ONestenl2, event
@@ -993,7 +1016,8 @@ pro ONestenl2, event
     default = 1, uvalue='list', /auto)
   result = auto_wid_mng(base)
   if (result.accept eq 0) then begin
-    wsize=7
+    widget_control,event.top,set_Uvalue=status,/no_copy
+    return
   end else case result.list of
   0: wsize = 3
   1: wsize = 7
@@ -1025,6 +1049,7 @@ endcase
     widget_control,status.statetextID,set_value='ENL calculation failed'
   endelse
   widget_control,event.top,set_Uvalue=status,/no_copy
+  ONviewenl2,event
 end
 
 pro ONchangemap, event
@@ -1053,6 +1078,7 @@ pro ONchangemap, event
   envi_file_mng,/remove,id=fid1
   envi_file_mng,/remove,id=fid2
   widget_control,event.top,set_Uvalue=status,/no_copy
+  ONviewchange, event
 end
 
 ; Help menu handlers
@@ -1077,11 +1103,11 @@ pro ONtoggle, event
   if status.toggle eq 1 then begin
     status.toggle = 0
     status.current_view = 2
-    Onview2, event
+    Onviewspan2, event
   end else begin
     status.toggle = 1
     status.current_view = 1
-    Onview1, event
+    Onviewspan1, event
   endelse
   widget_control,event.top,set_Uvalue=status,/no_copy
 end
@@ -1132,45 +1158,53 @@ PRO wishart_wizard_run, event
   tlb           = widget_base(/column,title=" The Wishart Wizard: Complex Wishart polSAR Change Detection",mbar=menubarID,xoffset=10,yoffset=80)
   
   fileID        = widget_button(menubarID,value='File',/menu)
-    ingest1ID     = widget_button(fileID, value='Ingest first image bands', event_pro='ONingest1')
-    ingest2ID     = widget_button(fileID, value='Ingest second image bands', event_pro='ONingest2',Sensitive=0)
-    load1ID        = widget_button(fileID, value='Load first image', event_pro='ONload1',/separator)
-    load2ID        = widget_button(fileID, value='Load second image', event_pro='ONload2',Sensitive=0)
-    save1ID       = widget_button(fileID, value='Save first image', event_pro='ONsave1', /separator, Sensitive=0)
-    save2ID       = widget_button(fileID, value='Save second image', event_pro='ONsave2',Sensitive=0)
-    saveID        = widget_button(fileID, value='Save current view to ENVI', event_pro='ONsave',Sensitive=0)
+    ingestID      = widget_button(fileID,value='Ingest',/menu)
+      ingest1ID     = widget_button(ingestID, value='First covariance matrix elements', event_pro='ONingest1')
+      ingest2ID     = widget_button(ingestID, value='Second covariance matrix elements', event_pro='ONingest2',Sensitive=0)
+    saveID        = widget_button(fileID,value='Save',/menu)   
+      save1ID       = widget_button(SaveID, value='First covariance image', event_pro='ONsave1', Sensitive=0)
+      save2ID       = widget_button(SaveID, value='Second covariance image', event_pro='ONsave2',Sensitive=0)      
+    loadID        = widget_button(fileID,value='Reload',/menu)  
+      load1ID        = widget_button(loadID, value='First covariance image', event_pro='ONload1')
+      load2ID        = widget_button(loadID, value='Second covariance image', event_pro='ONload2',Sensitive=0)
+    saveviewID    = widget_button(fileID, value='Save view to ENVI', event_pro='ONsaveview',Sensitive=0)
     quitID        = widget_button(fileID,value='Quit', event_pro='ONquit', /separator)
     
   sarscapeID    = widget_button(menubarID,value='(SARscape)',/menu,Sensitive = checkForSarscape())
-    workdirID     = widget_button(sarscapeID, value='Set working directory',event_pro='ONworkdir')
-    clearID       = widget_button(sarscapeID, value='Clear working directory',event_pro='ONclear',sensitive=0)
+    workdirID     = widget_button(sarscapeID,value='Working directory',/menu)
+      setworkID     = widget_button(workdirID, value='Set working directory',event_pro='ONsetwork')
+      clearworkID   = widget_button(workdirID, value='Clear working directory',event_pro='ONclearwork',sensitive=0)
+      showworkID    = widget_button(workdirID, value='Show working directory',event_pro='ONshowwork')
     rglooksID     = widget_button(sarscapeID, value='Set range looks', event_pro='Onrglooks')
     setdemID      = widget_button(sarscapeID, value='Set DEM', event_pro='ONdem',sensitive=1)
     slcID         = widget_button(sarscapeID, value='Import SLC', /menu, sensitive=0)
-    radarsat2ID   = widget_button(slcID, value='RADARSAT-2 QuadPol', event_pro='ONradarsat2')
-    tsxID         = widget_button(slcID, value='TerraSAR-X QuadPol', event_pro='ONtsx')
-    tsxslID       = widget_button(slcID, value='TerraSAR-X Spotlight SinglePol', event_pro='ONtsxsl')
-    cskID         = widget_button(slcID, value='COSMO-SkyMed Singlepol', event_pro='ONcsk')
+      radarsat2ID   = widget_button(slcID, value='RADARSAT-2 QuadPol', event_pro='ONradarsat2')
+      tsxID         = widget_button(slcID, value='TerraSAR-X QuadPol', event_pro='ONtsx')
+      tsxslID       = widget_button(slcID, value='TerraSAR-X Spotlight SinglePol', event_pro='ONtsxsl')
+      cskID         = widget_button(slcID, value='COSMO-SkyMed Singlepol', event_pro='ONcsk')
     geocodeID     = widget_button(sarscapeID, value='Geocode', event_pro='ONgeocode',sensitive=0)    
   
-  enlID        = widget_button(menubarID,value='ENL',/menu)
-    setenl1ID     = widget_button(enlID, value='Set ENL1', event_pro='ONsetenl1', /separator)
-    setenl2ID     = widget_button(enlID, value='Set ENL2', event_pro='ONsetenl2')
+    
   
   viewID        = widget_button(menubarID, value = 'View', /menu)
-    view1ID       = widget_button(viewID, value = 'Span of 1st image', event_pro = 'ONview1', sensitive=0)
-    view2ID       = widget_button(viewID, value = 'Span of 2nd image', event_pro = 'ONview2', sensitive=0)
-    viewenl1ID    = widget_button(viewID, value = 'ENL of 1st image', event_pro = 'ONviewenl1', /separator, sensitive=0)
-    viewenl2ID    = widget_button(viewID, value = 'ENL of 2nd image', event_pro = 'ONviewenl2', sensitive=0)
-    viewstatID    = widget_button(viewID, value = 'Change statistic', event_pro = 'ONviewstat', /separator, sensitive=0)
+    viewspanID    = widget_button(viewID, value = 'Span', /menu)
+      viewspan1ID   = widget_button(viewspanID, value = 'First covariance image', event_pro = 'ONviewspan1', sensitive=0)
+      viewspan2ID   = widget_button(viewspanID, value = 'Second covariance image', event_pro = 'ONviewspan2', sensitive=0)
+    viewenlID   = widget_button(viewID, value = 'ENL', /menu)
+      viewenl1ID    = widget_button(viewenlID, value = 'First covariance image', event_pro = 'ONviewenl1', sensitive=0)
+      viewenl2ID    = widget_button(viewenlID, value = 'Second covariance image', event_pro = 'ONviewenl2', sensitive=0)
+    viewstatID    = widget_button(viewID, value = 'Change statistic', event_pro = 'ONviewstat', sensitive=0)
     viewprobID    = widget_button(viewID, value = 'Change probability', event_pro = 'ONviewprob', sensitive=0)
     viewchangeID  = widget_button(viewID, value = 'Change map', event_pro = 'ONviewchange', sensitive=0)
   
   runID         = widget_button(menubarID, value='Run', /menu)
     coregisterID  = widget_button(runID, value='Co-register', event_pro = 'ONcoregister', sensitive=0)
-    estenl1ID     = widget_button(runID, value='Calculate ENL 1st image', event_pro = 'ONestenl1', /separator, sensitive=0)
-    estenl2ID     = widget_button(runID, value='Calculate ENL 2nd image', event_pro = 'ONestenl2', sensitive=0)
-    changemapID   = widget_button(runID, value='Change detection', event_pro = 'ONchangemap', /separator, sensitive=0) 
+    estenlID        = widget_button(runID, value='Calculate ENL', /menu,sensitive=0)
+      estenl1ID     = widget_button(estenlID, value='First covariance image', event_pro = 'ONestenl1')
+      estenl2ID     = widget_button(estenlID, value='Second covariance image', event_pro = 'ONestenl2')
+    setenl1ID     = widget_button(runID, value='Set ENL1', event_pro='ONsetenl1')
+    setenl2ID     = widget_button(runID, value='Set ENL2', event_pro='ONsetenl2')  
+    changemapID   = widget_button(runID, value='Change detection', event_pro = 'ONchangemap', sensitive=0) 
   
   helpID        = widget_button(menubarID,value='Help',/menu)
     mvHelpID      = widget_button(helpID,value='Open help file',event_pro='ONhelp')
@@ -1198,11 +1232,11 @@ PRO wishart_wizard_run, event
 ; widget communication structure
   
   status =  { $ 
-             clearID:clearID, $
+             clearworkID:clearworkID, $
              slcID: slcID, $
              setdemID: setdemID, $
              geocodeID: geocodeID, $
-             saveID: saveID, $
+             saveviewID: saveviewID, $
              ingest1ID: ingest1ID, $
              ingest2ID: ingest2ID, $
              load1ID: load1ID, $
@@ -1210,10 +1244,9 @@ PRO wishart_wizard_run, event
              save1ID: save1ID, $
              save2ID: save2ID, $
              coregisterID: coregisterID, $
-             estenl1ID: estenl1ID, $
-             estenl2ID: estenl2ID, $
-             view1ID: view1ID, $
-             view2ID: view2ID, $
+             estenlID: estenlID, $
+             viewspan1ID: viewspan1ID, $
+             viewspan2ID: viewspan2ID, $
              viewenl1ID: viewenl1ID, $
              viewenl2ID: viewenl2ID, $
              viewstatID: viewstatID, $
