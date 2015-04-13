@@ -185,10 +185,10 @@ pro ONradarsat2, event
   ENDIF  
   ok = osb.setupmodule(module='IMPORTRADARSAT2FORMAT')
   ok = osb.setparam('parameter_extraction_data_type','radarsat2_slc')
-  ok = osb.setparam('parameter_extraction_data_version','default') 
+;  ok = osb.setparam('parameter_extraction_data_version','default') 
   infile = dialog_pickfile(/read,filter='product.xml')
   if infile eq '' then return
-  ok = osb.setparam('input_param_file_list',infile) 
+  ok = osb.setparam('input_file_list',infile) 
   ok = osb.setparam('output_file_list',workdir+'\product') 
   print, 'Importing RadarSat-2 quadpol imagery ...'
   ok = osb.executeprogress(ErrMsg=err)
@@ -203,9 +203,18 @@ pro ONradarsat2, event
   ok = osb.setparam('in_hv_file_name',infiles[1])
   ok = osb.setparam('in_vh_file_name',infiles[2])
   ok = osb.setparam('in_vv_file_name',infiles[3])
-  out_root_name = workdir+'\product'
+  out_root_name = workdir+'product'
   ok = osb.setparam('out_root_name',out_root_name)
-  ok = osb.setparam('list_name',['hh_hh','vv_vv','hv_hv','re_hh_vv','im_hh_vv','re_hv_vv','im_hv_vv','re_hh_hv','im_hh_hv'])
+  ok = osb.setparam('span','NotOK')
+  ok = osb.setparam('polrat','NotOK')
+  ok = osb.setparam('lindepolrat','NotOK')
+  ok = osb.setparam('ppd_hh_vv','NotOK')
+  ok = osb.setparam('coherence_hh_vv','NotOK')
+  ok = osb.setparam('ppd_hh_hv','NotOK')
+  ok = osb.setparam('coherence_hh_hv','NotOK')
+  ok = osb.setparam('ppd_hv_vv','NotOK')
+  ok = osb.setparam('coherence_hv_vv','NotOK')
+  ok = osb.setparam('norm_flag','NotOK')
 ; get the multilooking factors
   envi_open_file, infiles[0], r_fid=fid, /invisible
   envi_file_query, fid, pixel_size=ps
@@ -237,14 +246,14 @@ pro ONtsx, event
     infile = dialog_pickfile(/read,filter='*.xml')
   if infile eq '' then return
   outfile = workdir+'\product'
-  ok = osb.setparam('input_param_file_list',infile)
+  ok = osb.setparam('input_file_list',infile)
   ok = osb.setparam('output_file_list',outfile)
   ok = osb.setparam('parameter_extraction_data_type','TSX1_SSC_SM_QUAD')
-  ok = osb.setparam('parameter_extraction_data_version','default')
+;  ok = osb.setparam('parameter_extraction_data_version','default')
   ok = osb.executeprogress(ErrMsg=err)
   if ok then print, 'Import TSX output file: '+outfile $
     else begin
-      print, 'Import TSX failed' 
+      print, 'Import TSX failed '+err 
       return
     endelse 
   ok = osb.setupmodule(module='POLPOLARIMETRICFEATURES')
@@ -253,9 +262,18 @@ pro ONtsx, event
   ok = osb.setparam('in_hv_file_name',infiles[1])
   ok = osb.setparam('in_vh_file_name',infiles[2])
   ok = osb.setparam('in_vv_file_name',infiles[3])
-  out_root_name = workdir+'\product'
+  out_root_name = workdir+'product'
   ok = osb.setparam('out_root_name',out_root_name)
-  ok = osb.setparam('list_name',['hh_hh','vv_vv','hv_hv','re_hh_vv','im_hh_vv','re_hv_vv','im_hv_vv','re_hh_hv','im_hh_hv'])
+  ok = osb.setparam('span','NotOK')
+  ok = osb.setparam('polrat','NotOK')
+  ok = osb.setparam('lindepolrat','NotOK')
+  ok = osb.setparam('ppd_hh_vv','NotOK')
+  ok = osb.setparam('coherence_hh_vv','NotOK')
+  ok = osb.setparam('ppd_hh_hv','NotOK')
+  ok = osb.setparam('coherence_hh_hv','NotOK')
+  ok = osb.setparam('ppd_hv_vv','NotOK')
+  ok = osb.setparam('coherence_hv_vv','NotOK')
+  ok = osb.setparam('norm_flag','NotOK')
   ; get the multilooking factors
   envi_open_file, infiles[0], r_fid=fid, /invisible
   envi_file_query, fid, pixel_size=ps
@@ -285,15 +303,14 @@ pro ONtsxsl, event
   ok = osb.setupmodule(module='IMPORTTSXFORMAT')
   infile = dialog_pickfile(/read,filter='*.xml')
   if infile eq '' then return
-  ok = osb.setparam('input_param_file_list',infile)
+  ok = osb.setparam('input_file_list',infile)
   outfile = workdir+file_basename(infile,'.xml')
   ok = osb.setparam('output_file_list',outfile)
   ok = osb.setparam('parameter_extraction_data_type','TSX1_SSC_SL_SINGLE')
-  ok = osb.setparam('parameter_extraction_data_version','default_ssc_format')
   ok = osb.executeprogress(ErrMsg=err)
   if ok then print, 'Import TSX output file: '+outfile+'_HH_slc' $
     else begin
-      print, 'Import TSX failed' 
+      print, 'Import TSX failed '+err 
       return
     endelse     
   ok = osb.setupmodule(module='BASEMULTILOOKING')   

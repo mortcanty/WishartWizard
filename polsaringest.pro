@@ -70,7 +70,7 @@ function polSARingest, dirname, dims=dims, outim=outim, bnames=bnames, map_info=
        envi_file_mng,/remove,id=fid
      endif    
 ;   dual and quad polarimetry, ENVI/SARscape or polSARPro/Mapready     
-     if (stregex(file,'hh_hh_geo',/boolean) or stregex(file,'C11.tif',/boolean) or stregex(file,'C11.bin',/boolean)) and not stregex(file,'hdr|sml',/boolean) then begin
+     if (stregex(file,'hh_hh_geo',/boolean) or stregex(file,'C11.tif',/boolean) or stregex(file,'C11.bin',/boolean)) and not stregex(file,'hdr|sml|meta|ql',/boolean) then begin
        envi_open_file, file, r_fid=fid
        if nodims then envi_file_query, fid, dims=dims
        if n_elements(outim) eq 0 then begin
@@ -86,7 +86,7 @@ function polSARingest, dirname, dims=dims, outim=outim, bnames=bnames, map_info=
        map_info.mc = [0D,0D,e,n]
        envi_file_mng,/remove,id=fid
      endif    
-      if (stregex(file,'re_hh_hv_geo',/boolean) or stregex(file,'C12_real.tif',/boolean) or stregex(file,'C12_real.bin',/boolean)) and not stregex(file,'hdr|sml',/boolean) then begin 
+      if (stregex(file,'re_hh_hv_geo',/boolean) or stregex(file,'C12_real.tif',/boolean) or stregex(file,'C12_real.bin',/boolean)) and not stregex(file,'hdr|sml|meta|ql',/boolean) then begin 
         envi_open_file, file, r_fid=fid
         if nodims then envi_file_query, fid, dims=dims
         if n_elements(outim) eq 0 then begin
@@ -97,7 +97,7 @@ function polSARingest, dirname, dims=dims, outim=outim, bnames=bnames, map_info=
         outim[*,*,1] = envi_get_data(fid=fid,dims=dims,pos=0)
         envi_file_mng,/remove,id=fid
       endif 
-      if (stregex(file,'im_hh_hv_geo',/boolean) or stregex(file,'C12_imag.tif',/boolean) or stregex(file,'C12_imag.bin',/boolean)) and not stregex(file,'hdr|sml',/boolean) then begin 
+      if (stregex(file,'im_hh_hv_geo',/boolean) or stregex(file,'C12_imag.tif',/boolean) or stregex(file,'C12_imag.bin',/boolean)) and not stregex(file,'hdr|sml|meta|ql',/boolean) then begin 
         envi_open_file, file, r_fid=fid
         if nodims then envi_file_query, fid, dims=dims
         if n_elements(outim) eq 0 then begin
@@ -108,7 +108,7 @@ function polSARingest, dirname, dims=dims, outim=outim, bnames=bnames, map_info=
         outim[*,*,2] = envi_get_data(fid=fid,dims=dims,pos=0)
         envi_file_mng,/remove,id=fid        
       endif     
-      if (stregex(file,'re_hh_vv_geo',/boolean) or stregex(file,'C13_real.tif',/boolean) or stregex(file,'C13_real.bin',/boolean)) and not stregex(file,'hdr|sml',/boolean) then begin 
+      if (stregex(file,'re_hh_vv_geo',/boolean) or stregex(file,'C13_real.tif',/boolean) or stregex(file,'C13_real.bin',/boolean)) and not stregex(file,'hdr|sml|meta|ql',/boolean) then begin 
         envi_open_file, file, r_fid=fid
         if nodims then envi_file_query, fid, dims=dims
         if n_elements(outim) eq 0 then begin
@@ -119,7 +119,7 @@ function polSARingest, dirname, dims=dims, outim=outim, bnames=bnames, map_info=
         outim[*,*,3] = envi_get_data(fid=fid,dims=dims,pos=0)
         envi_file_mng,/remove,id=fid        
       endif 
-      if (stregex(file,'im_hh_vv_geo',/boolean) or stregex(file,'C13_imag.tif',/boolean) or stregex(file,'C13_imag.bin',/boolean)) and not stregex(file,'hdr|sml',/boolean) then begin 
+      if (stregex(file,'im_hh_vv_geo',/boolean) or stregex(file,'C13_imag.tif',/boolean) or stregex(file,'C13_imag.bin',/boolean)) and not stregex(file,'hdr|sml|meta|ql',/boolean) then begin 
         envi_open_file, file, r_fid=fid
         if nodims then envi_file_query, fid, dims=dims
         if n_elements(outim) eq 0 then begin
@@ -130,7 +130,7 @@ function polSARingest, dirname, dims=dims, outim=outim, bnames=bnames, map_info=
         outim[*,*,4] = envi_get_data(fid=fid,dims=dims,pos=0)
         envi_file_mng,/remove,id=fid        
       endif      
-      if (stregex(file,'hv_hv_geo',/boolean) or stregex(file,'C22.tif',/boolean) or stregex(file,'C22.bin',/boolean)) and not stregex(file,'hdr|sml',/boolean) then begin 
+      if (stregex(file,'hv_hv_geo',/boolean) or stregex(file,'C22.tif',/boolean) or stregex(file,'C22.bin',/boolean)) and not stregex(file,'hdr|sml|meta|ql',/boolean) then begin 
         envi_open_file, file, r_fid=fid
         if nodims then envi_file_query, fid, dims=dims
         if n_elements(outim) eq 0 then begin
@@ -146,7 +146,7 @@ function polSARingest, dirname, dims=dims, outim=outim, bnames=bnames, map_info=
         map_info.mc = [0D,0D,e,n]
         envi_file_mng,/remove,id=fid        
       endif   
-      if (stregex(file,'re_hv_vv_geo',/boolean) or stregex(file,'C23_real.tif',/boolean) or stregex(file,'C23_real.bin',/boolean)) and not stregex(file,'hdr|sml',/boolean) then begin 
+      if (stregex(file,'re_hv_vv_geo',/boolean) or stregex(file,'C23_real.tif',/boolean) or stregex(file,'C23_real.bin',/boolean)) and not stregex(file,'hdr|sml|meta|ql',/boolean) then begin 
         envi_open_file, file, r_fid=fid
         if nodims then envi_file_query, fid, dims=dims
         if n_elements(outim) eq 0 then begin
@@ -157,7 +157,7 @@ function polSARingest, dirname, dims=dims, outim=outim, bnames=bnames, map_info=
         outim[*,*,6] = envi_get_data(fid=fid,dims=dims,pos=0)
         envi_file_mng,/remove,id=fid        
       endif   
-      if (stregex(file,'im_hv_vv_geo',/boolean) or stregex(file,'C23_imag.tif',/boolean) or stregex(file,'C23_imag.bin',/boolean)) and not stregex(file,'hdr|sml',/boolean) then begin 
+      if (stregex(file,'im_hv_vv_geo',/boolean) or stregex(file,'C23_imag.tif',/boolean) or stregex(file,'C23_imag.bin',/boolean)) and not stregex(file,'hdr|sml|meta|ql',/boolean) then begin 
         envi_open_file, file, r_fid=fid
         if nodims then envi_file_query, fid, dims=dims
         if n_elements(outim) eq 0 then begin
@@ -168,7 +168,7 @@ function polSARingest, dirname, dims=dims, outim=outim, bnames=bnames, map_info=
         outim[*,*,7] = envi_get_data(fid=fid,dims=dims,pos=0)
         envi_file_mng,/remove,id=fid        
       endif   
-      if (stregex(file,'vv_vv_geo',/boolean) or stregex(file,'C33.tif',/boolean) or stregex(file,'C33.bin',/boolean)) and not stregex(file,'hdr|sml',/boolean) then begin 
+      if (stregex(file,'vv_vv_geo',/boolean) or stregex(file,'C33.tif',/boolean) or stregex(file,'C33.bin',/boolean)) and not stregex(file,'hdr|sml|meta|ql',/boolean) then begin 
         envi_open_file, file, r_fid=fid
         if nodims then envi_file_query, fid, dims=dims
         if n_elements(outim) eq 0 then begin
